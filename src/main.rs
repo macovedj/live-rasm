@@ -3,6 +3,7 @@ use std::str;
 use regex::Regex;
 mod tokens;
 mod parser;
+mod ast;
 
 fn main() {
   let contents = fs::read_to_string("./src/test.wat")
@@ -12,6 +13,7 @@ fn main() {
     let re = Regex::new(r"\s+").unwrap();
     let text = re.replace_all(&oneline, " ");
     let chars = text.trim();
-    let parsed: Vec<parser::Token> = parser::Parser::new(chars).collect();
-    println!("THE PARSED TOKENS {:?}", parsed);
+    let parsed = parser::Parser::new(chars);
+    let ast = ast::ast_builder(parsed);
+    println!("THE AST {:?}", ast);
 }
