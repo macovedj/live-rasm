@@ -2,15 +2,15 @@ use super::parser;
 use super::tokens;
 
 #[derive(Debug)]
-pub struct Ast {
-  pub module: Vec<Func>
+pub struct Ast<'a> {
+  pub module: Vec<Func<'a>>
 }
 
 #[derive(Debug)]
-pub struct Func {
-  pub export: String,
+pub struct Func<'a> {
+  pub export: &'a str,
   pub params: Vec<WasmPrimitives>,
-  pub body: Vec<String>,
+  pub body: Vec<&'a str>,
   pub result: WasmPrimitives
 }
 
@@ -23,7 +23,7 @@ pub enum WasmPrimitives {
   NULL
 }
 
-pub fn ast_builder(mut tokens: impl Iterator<Item = parser::Token>) -> Ast {
+pub fn ast_builder<'a>(mut tokens: impl Iterator<Item = &'a parser::Token<'a>>) -> Ast<'a> {
   let mut ast = Ast {
     module: Vec::new()
   };
@@ -43,7 +43,7 @@ pub fn ast_builder(mut tokens: impl Iterator<Item = parser::Token>) -> Ast {
       tokens::TokenTypes::FUNC => {
         let mut func_def = true;
         let mut cur_func = Func {
-          export: String::from(""),
+          export: "",
           params: Vec::new(),
           body: Vec::new(),
           result: WasmPrimitives::NULL
@@ -58,7 +58,7 @@ pub fn ast_builder(mut tokens: impl Iterator<Item = parser::Token>) -> Ast {
             tokens::TokenTypes::EXPORT => {
               if let Some(next_token) = tokens.next() {
                 let export = &next_token.value;
-                cur_func.export = String::from(export);
+                cur_func.export = export;
                 if let Some(potential_token) = tokens.next() {
                   token = potential_token;
                 }
@@ -106,7 +106,7 @@ pub fn ast_builder(mut tokens: impl Iterator<Item = parser::Token>) -> Ast {
             _ => {
               while !matches!(token.kind, tokens::TokenTypes::RPAR) {
                 let instr = &token.value;
-                cur_func.body.push(String::from(instr));
+                cur_func.body.push(instr);
                 if let Some(potential_token) = tokens.next() {
                   token = potential_token;
                 }

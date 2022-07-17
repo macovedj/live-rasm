@@ -1,9 +1,9 @@
 use super::tokens;
 
 #[derive(Debug)]
-pub struct Token {
+pub struct Token<'a> {
   pub kind: tokens::TokenTypes,
-  pub value: String
+  pub value: &'a str
 }
 
 pub struct Parser<'a> {
@@ -18,7 +18,7 @@ impl<'a> Parser<'a> {
 }
 
 impl <'a> Iterator for Parser<'a> {
-  type Item = Token;
+  type Item = &'a Token<'a>;
 
   fn next(&mut self) -> Option<Self::Item> {
     if self.index == self.chars.len() - 1 {
@@ -27,11 +27,11 @@ impl <'a> Iterator for Parser<'a> {
     match &self.chars[self.index..self.index + 1] {
       "(" => {
         self.index += 1;
-        return Some(Token {kind: tokens::TokenTypes::LPAR, value: String::from("(")})
+        return Some(&Token {kind: tokens::TokenTypes::LPAR, value: "("})
       }
       ")" => {
         self.index += 1;
-        return Some(Token {kind: tokens::TokenTypes::RPAR, value: String::from(")")})
+        return Some(&Token {kind: tokens::TokenTypes::RPAR, value: ")"})
       }
       " " => {
         self.index += 1;
@@ -43,19 +43,19 @@ impl <'a> Iterator for Parser<'a> {
           match &self.chars[self.index..self.index + tok_length] {
             "module" => {
               self.index += tok_length;
-              break Some(Token {kind: tokens::TokenTypes::MOD, value: String::from("module")})
+              break Some(&Token {kind: tokens::TokenTypes::MOD, value: "module"})
             }
             "func" => {
               self.index += tok_length;
-              break Some(Token {kind: tokens::TokenTypes::FUNC, value: String::from("func")})
+              break Some(&Token {kind: tokens::TokenTypes::FUNC, value: "func"})
             }
             "export" => {
               self.index += tok_length;
-              break Some(Token {kind: tokens::TokenTypes::EXPORT, value: String::from("export")})
+              break Some(&Token {kind: tokens::TokenTypes::EXPORT, value: "export"})
             }
             "param" => {
               self.index += tok_length;
-              break Some(Token {kind: tokens::TokenTypes::PARAMDECL, value: String::from("param")})
+              break Some(&Token {kind: tokens::TokenTypes::PARAMDECL, value: "param"})
             }
             "i32" => {
               if &self.chars[self.index + tok_length..self.index + tok_length + 1] == "." {
@@ -63,23 +63,23 @@ impl <'a> Iterator for Parser<'a> {
                 continue;
               }
               self.index += tok_length;
-              break Some(Token {kind: tokens::TokenTypes::PARAM, value: String::from("i32")})
+              break Some(&Token {kind: tokens::TokenTypes::PARAM, value: "i32"})
             }
             "result" => {
               self.index += tok_length;
-              break Some(Token {kind: tokens::TokenTypes::RESULT, value: String::from("result")})
+              break Some(&Token {kind: tokens::TokenTypes::RESULT, value: "result"})
             }
             "local.get" => {
               self.index += tok_length;
-              break Some(Token {kind: tokens::TokenTypes::LOCAL_GET, value: String::from("local.get")})
+              break Some(&Token {kind: tokens::TokenTypes::LOCAL_GET, value: "local.get"})
             }
             "i32.add" => {
               self.index += tok_length;
-              break Some(Token {kind: tokens::TokenTypes::ADD_I32, value: String::from("i32.add")})
+              break Some(&Token {kind: tokens::TokenTypes::ADD_I32, value: "i32.add"})
             }
             _ => {
               if &self.chars[self.index+ tok_length..self.index + tok_length + 1] == ")" || &self.chars[self.index+ tok_length..self.index + tok_length + 1] == " " {
-                let tok = Some(Token {kind: tokens::TokenTypes::LITERAL, value: String::from(&self.chars[self.index..self.index + tok_length])
+                let tok = Some(Token {kind: tokens::TokenTypes::LITERAL, value: &self.chars[self.index..self.index + tok_length]
                   .replace(&['\\', '"'], "")});
                 self.index += tok_length;
                 break tok;
