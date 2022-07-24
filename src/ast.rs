@@ -14,7 +14,7 @@ pub struct Func {
   pub result: WasmPrimitives
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq, Copy, Clone)]
 pub enum WasmPrimitives {
   i32,
   i64,
@@ -29,7 +29,6 @@ pub fn ast_builder(mut tokens: impl Iterator<Item = parser::Token>) -> Ast {
   };
 
   while let Some(mut token) = tokens.next() {
-    println!("THE TOKEN {:?}", token);
     match token.kind {
       tokens::TokenTypes::LPAR => {
         continue;
@@ -53,7 +52,6 @@ pub fn ast_builder(mut tokens: impl Iterator<Item = parser::Token>) -> Ast {
           token = potential_token;
         }
         while func_def {
-          println!("THE CURRENT FUNCTION {:?}\n", cur_func);
           match token.kind {
             tokens::TokenTypes::EXPORT => {
               if let Some(next_token) = tokens.next() {
@@ -63,7 +61,6 @@ pub fn ast_builder(mut tokens: impl Iterator<Item = parser::Token>) -> Ast {
                   token = potential_token;
                 }
               }
-              println!("THE CURRENT FUNCTION {:?}\n", cur_func);
             }
             tokens::TokenTypes::RPAR => {
               if let Some(potential_token) = tokens.next() {
