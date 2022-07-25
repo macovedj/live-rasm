@@ -1,5 +1,3 @@
-use core::num;
-
 use super::ast;
 
 #[derive(PartialEq, Eq)]
@@ -50,7 +48,7 @@ pub fn compiler(ast: ast::Ast) -> Vec<u8> {
 
   let mut sigs = Vec::new();
   for func in &ast.module[..] {
-    sigs.push(Sig::new(&func));
+    sigs.push(Sig::new(func));
   }
   sigs.dedup();
   let num_of_types = sigs.len();
@@ -68,14 +66,14 @@ pub fn compiler(ast: ast::Ast) -> Vec<u8> {
   bytes.push(num_of_funcs as u8);
   for func in &ast.module[..] {
     for (i, sig) in sigs.iter().enumerate() {
-      if sig == &Sig::new(&func) {
+      if sig == &Sig::new(func) {
         bytes.push(i as u8);
       }
     }
   }
 
   let num_of_exports = ast.module.iter()
-    .filter(|func| func.export.len() > 0).count();
+    .filter(|func| !func.export.is_empty()).count();
 
   if num_of_exports > 0 {
     bytes.push(0x07);
@@ -85,7 +83,7 @@ pub fn compiler(ast: ast::Ast) -> Vec<u8> {
     bytes.push((export_section_size + 1) as u8);
     bytes.push(num_of_exports as u8);
     for (i, export) in export_names.iter().enumerate() {
-      if export.len() == 0 {
+      if export.is_empty() {
         continue;
       }
       bytes.push(export.len() as u8);

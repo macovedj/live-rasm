@@ -27,15 +27,15 @@ impl <'a> Iterator for Parser<'a> {
     match &self.chars[self.index..self.index + 1] {
       "(" => {
         self.index += 1;
-        return Some(Token {kind: tokens::TokenTypes::LPAR, value: String::from("(")})
+        Some(Token {kind: tokens::TokenTypes::LPAR, value: String::from("(")})
       }
       ")" => {
         self.index += 1;
-        return Some(Token {kind: tokens::TokenTypes::RPAR, value: String::from(")")})
+        Some(Token {kind: tokens::TokenTypes::RPAR, value: String::from(")")})
       }
       " " => {
         self.index += 1;
-        return self.next();
+        self.next()
       }
       _ => {
         let mut tok_length = 1;
